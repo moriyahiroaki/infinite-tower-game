@@ -3,564 +3,212 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Infinite Tower: Metal Alchemy & War</title>
+<title>Infinite Tower: Zenith Alchemy</title>
 <style>
     :root {
-        --bg-color: #1a1a1d;
-        --panel-bg: #2d2d34;
-        --text-color: #e0e0e0;
-        --accent: #4a90e2;
-        --ruby: #e74c3c; /* Iron */
-        --amethyst: #9b59b6; /* Lead */
-        --emerald: #2ecc71; /* Copper */
-        --topaz: #f1c40f; /* Gold */
-        --sapphire: #3498db; /* Silver */
-        --diamond: #ecf0f1; /* Platinum */
+        --bg: #0d0d0f; --panel: #1c1c21; --text: #e0e0e0;
+        --ruby: #ff3e3e; --amethyst: #bf5af2; --emerald: #32d74b;
+        --topaz: #ffd60a; --sapphire: #0a84ff; --diamond: #f2f2f7;
     }
-
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: var(--bg-color);
-        color: var(--text-color);
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-        overflow: hidden;
-    }
-
-    /* Header & RCI */
-    #header {
-        background: #000;
-        padding: 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 2px solid #444;
-    }
-    .rci-meter {
-        display: flex;
-        gap: 15px;
-        font-weight: bold;
-    }
-    .rci-val { padding: 2px 8px; border-radius: 4px; }
-    .r-val { background: #27ae60; color: #fff; } /* Res */
-    .c-val { background: #2980b9; color: #fff; } /* Com */
-    .i-val { background: #f39c12; color: #000; } /* Ind */
-
-    /* Main Layout */
-    #game-container {
-        display: flex;
-        flex: 1;
-        overflow: hidden;
-    }
-
-    /* Left: The Tower */
-    #tower-section {
-        flex: 1;
-        border-right: 2px solid #444;
-        display: flex;
-        flex-direction: column;
-        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path d="M0 0h20v20H0z" fill="%23222"/><path d="M0 19h20v1H0z" fill="%23333"/></svg>');
-        position: relative;
-    }
-    #sky {
-        flex: 1;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column-reverse; /* Build upwards */
-        padding: 20px;
-        align-items: center;
-    }
-    .floor {
-        height: 40px;
-        border: 1px solid #555;
-        background: #333;
-        margin-bottom: 2px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        transition: width 0.3s;
-        box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        color: #fff;
-        position: relative;
-    }
-    .floor:hover::after {
-        content: attr(data-info);
-        position: absolute;
-        left: 100%;
-        background: rgba(0,0,0,0.9);
-        padding: 5px;
-        white-space: nowrap;
-        z-index: 10;
-        pointer-events: none;
-    }
-    .floor.iron { border-left: 5px solid var(--ruby); }
-    .floor.gold { border-left: 5px solid var(--topaz); }
-    .floor.platinum { border-left: 5px solid var(--diamond); }
-
-    /* Right: Dashboard (Tabs) */
-    #dashboard {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        background: var(--panel-bg);
-    }
-    .tabs { display: flex; border-bottom: 1px solid #555; }
-    .tab {
-        flex: 1; padding: 15px; text-align: center; cursor: pointer; background: #333;
-    }
-    .tab.active { background: var(--panel-bg); font-weight: bold; border-top: 3px solid var(--accent); }
+    body { font-family: 'Courier New', monospace; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
     
-    .panel { display: none; flex: 1; padding: 20px; overflow-y: auto; }
-    .panel.active { display: block; }
+    /* Header & RCI Map Synergy */
+    #header { background: #000; padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; }
+    .rci-bar { display: flex; gap: 10px; }
+    .rci-node { padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 14px; }
+    .r-node { background: #1a5c2e; } .c-node { background: #1a3c5c; } .i-node { background: #5c3c1a; }
 
-    /* Puzzle Section */
-    #puzzle-board {
-        display: grid;
-        grid-template-columns: repeat(6, 1fr);
-        gap: 5px;
-        width: 300px;
-        margin: 0 auto;
-        background: #111;
-        padding: 10px;
-        border-radius: 8px;
+    /* Layout */
+    #main { display: flex; flex: 1; overflow: hidden; }
+    
+    /* Tower & Elevator Area */
+    #tower-area { flex: 1.5; position: relative; display: flex; background: #111; border-right: 2px solid #333; overflow-y: auto; flex-direction: column-reverse; padding: 50px; }
+    .floor { 
+        height: 50px; margin: 2px 0; border: 1px solid #444; position: relative; 
+        display: flex; align-items: center; justify-content: center; font-weight: bold; transition: 0.3s;
     }
-    .gem {
-        width: 45px; height: 45px;
-        border-radius: 50%;
-        cursor: pointer;
-        transition: transform 0.1s;
-        border: 2px solid rgba(255,255,255,0.2);
-        box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-    }
-    .gem:active { transform: scale(0.9); }
-    .gem.ruby { background: radial-gradient(circle, #ff6b6b, var(--ruby)); }
-    .gem.amethyst { background: radial-gradient(circle, #be93d4, var(--amethyst)); }
-    .gem.emerald { background: radial-gradient(circle, #58d68d, var(--emerald)); }
-    .gem.topaz { background: radial-gradient(circle, #f4d03f, var(--topaz)); }
-    .gem.sapphire { background: radial-gradient(circle, #5dade2, var(--sapphire)); }
-    .gem.diamond { background: radial-gradient(circle, #fff, #bdc3c7); }
+    .elevator-shaft { position: absolute; left: 10px; top: 0; bottom: 0; width: 30px; background: #222; border: 1px solid #444; }
+    .elevator-car { position: absolute; left: 2px; width: 24px; height: 40px; background: #00ff00; box-shadow: 0 0 10px #00ff00; transition: top 0.5s ease-in-out; }
+    .express-car { background: #00ffff; box-shadow: 0 0 15px #00ffff; height: 30px; }
 
-    /* Resources Display */
-    #resources {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-    .res-box { background: #222; padding: 10px; border-radius: 5px; font-size: 14px; }
+    /* Dashboard */
+    #dashboard { flex: 1.2; display: flex; flex-direction: column; background: var(--panel); }
+    .tabs { display: flex; background: #000; }
+    .tab { flex: 1; padding: 15px; cursor: pointer; text-align: center; border-bottom: 2px solid transparent; }
+    .tab.active { border-bottom: 2px solid var(--topaz); background: #222; }
 
-    /* Controls */
-    button {
-        background: var(--accent); color: white; border: none; padding: 10px;
-        cursor: pointer; margin: 5px 0; width: 100%; font-weight: bold;
-        transition: background 0.2s;
-    }
-    button:hover { background: #357abd; }
-    button.secondary { background: #555; }
+    /* Puzzle & Magic Cards */
+    #puzzle-container { padding: 20px; display: flex; flex-direction: column; align-items: center; }
+    #grid { display: grid; grid-template-columns: repeat(6, 50px); gap: 5px; }
+    .gem { width: 50px; height: 50px; border-radius: 8px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
+    .magic-area { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+    .magic-btn { padding: 8px; font-size: 11px; background: #333; color: #fff; cursor: pointer; border: 1px solid #666; }
 
-    /* Unit Editor */
-    #unit-grid {
-        display: grid;
-        grid-template-columns: repeat(10, 30px);
-        gap: 2px;
-        margin: 0 auto;
-        background: #000;
-        border: 2px solid #555;
-        padding: 5px;
-    }
-    .unit-cell {
-        width: 30px; height: 30px;
-        background: #222;
-        border: 1px solid #333;
-        cursor: pointer;
-    }
-    .unit-cell.iron { background: var(--ruby); }
-    .unit-cell.platinum { background: var(--diamond); }
-    /* Add more styles for other metals as needed */
+    /* Hybrid Color Classes */
+    .c2-iron-lead { background: linear-gradient(45deg, var(--ruby), var(--amethyst)); }
+    .c3-zenith { background: conic-gradient(var(--ruby), var(--amethyst), var(--emerald), var(--topaz), var(--sapphire), var(--diamond), var(--ruby)); animation: rotate 5s linear infinite; }
+    @keyframes rotate { from { filter: hue-rotate(0deg); } to { filter: hue-rotate(360deg); } }
 
-    /* Log */
-    #log-area {
-        height: 100px;
-        background: #111;
-        font-family: monospace;
-        font-size: 12px;
-        overflow-y: scroll;
-        padding: 5px;
-        color: #888;
-        border-top: 1px solid #444;
-    }
+    .res-val { font-size: 12px; margin-bottom: 5px; }
 </style>
 </head>
 <body>
 
 <div id="header">
-    <div>Infinite Tower <span style="font-size:0.8em; color:#888;">v0.1.0</span></div>
-    <div class="rci-meter">
-        <span class="rci-val r-val">R: <span id="val-r">0</span></span>
-        <span class="rci-val c-val">C: <span id="val-c">0</span></span>
-        <span class="rci-val i-val">I: <span id="val-i">0</span></span>
+    <div id="title">ZENITH TOWER OS</div>
+    <div class="rci-bar">
+        <div class="rci-node r-node">Res: <span id="r-val">10</span></div>
+        <div class="rci-node c-node">Com: <span id="c-val">10</span></div>
+        <div class="rci-node i-node">Ind: <span id="i-val">10</span></div>
     </div>
     <div>
-        <button id="save-btn" style="width:auto; padding:5px 15px;">Download Save</button>
-        <input type="file" id="load-input" style="display:none;">
-        <button id="load-btn" style="width:auto; padding:5px 15px;" class="secondary">Upload Load</button>
+        <button onclick="saveGame()">SAVE JSON</button>
     </div>
 </div>
 
-<div id="game-container">
-    <div id="tower-section">
-        <div id="sky">
-            </div>
-        <div style="padding:10px; background:#222; text-align:center; border-top:1px solid #555;">
-            Tower Width: <span id="tower-width-disp">100</span>px
+<div id="main">
+    <div id="tower-area">
+        <div class="elevator-shaft">
+            <div id="ele-car" class="elevator-car"></div>
+            <div id="exp-car" class="elevator-car express-car" style="display:none;"></div>
         </div>
+        <div id="floors-container"></div>
     </div>
 
     <div id="dashboard">
         <div class="tabs">
-            <div class="tab active" onclick="switchTab('puzzle')">Puzzle & Res</div>
-            <div class="tab" onclick="switchTab('build')">Construction</div>
-            <div class="tab" onclick="switchTab('unit')">Unit Lab</div>
+            <div class="tab active" onclick="showTab('puzzle')">Alchemy</div>
+            <div class="tab" onclick="showTab('build')">Architecture</div>
+            <div class="tab" onclick="showTab('map')">SimMap</div>
         </div>
 
-        <div id="panel-puzzle" class="panel active">
-            <div id="resources">
-                <div class="res-box" style="color:var(--ruby)">Iron: <span id="res-ruby">0</span></div>
-                <div class="res-box" style="color:var(--amethyst)">Lead: <span id="res-amethyst">0</span></div>
-                <div class="res-box" style="color:var(--emerald)">Copper: <span id="res-emerald">0</span></div>
-                <div class="res-box" style="color:var(--topaz)">Gold: <span id="res-topaz">0</span></div>
-                <div class="res-box" style="color:var(--sapphire)">Silver: <span id="res-sapphire">0</span></div>
-                <div class="res-box" style="color:var(--diamond)">Platinum: <span id="res-diamond">0</span></div>
-            </div>
-            <div id="puzzle-board"></div>
-            <p style="text-align:center; font-size:0.9em; color:#888;">Click gems to mine metals. Larger groups = Combo!</p>
-        </div>
-
-        <div id="panel-build" class="panel">
-            <h3>Tower Expansion</h3>
-            <div class="res-box">
-                <p><strong>Expand Width (Plot Size)</strong></p>
-                <p>Cost: <span id="width-cost">500</span> Gold</p>
-                <button onclick="expandWidth()">Expand Plot (+20px)</button>
-            </div>
-            
-            <h3>New Floor Construction</h3>
-            <div class="res-box" style="border-left: 4px solid var(--ruby)">
-                <p><strong>Military Barracks (Iron)</strong></p>
-                <p>Increases Industrial (I). Cost: <span id="cost-iron">100</span> Iron</p>
-                <button onclick="buildFloor('iron')">Build Iron Floor</button>
-            </div>
-            <div class="res-box" style="border-left: 4px solid var(--amethyst)">
-                <p><strong>Residential Block (Lead/Stone)</strong></p>
-                <p>Increases Residential (R). Cost: <span id="cost-lead">100</span> Lead</p>
-                <button onclick="buildFloor('lead')">Build Lead Floor</button>
-            </div>
-            <div class="res-box" style="border-left: 4px solid var(--topaz)">
-                <p><strong>Trade Center (Gold)</strong></p>
-                <p>Increases Commercial (C). Cost: <span id="cost-gold">100</span> Gold</p>
-                <button onclick="buildFloor('gold')">Build Gold Floor</button>
+        <div id="tab-puzzle" style="display:block; padding:15px;">
+            <div id="res-display" style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-bottom:15px;"></div>
+            <div id="grid"></div>
+            <div class="magic-area">
+                <button class="magic-btn" onclick="useMagic('flame')">Flame Craft (Red)</button>
+                <button class="magic-btn" onclick="useMagic('shield')">Dream Barrier (White)</button>
+                <button class="magic-btn" onclick="useMagic('haste')">Express Mode (Blue)</button>
             </div>
         </div>
 
-        <div id="panel-unit" class="panel">
-            <h3>Unit Designer</h3>
-            <p>Paint modules on the grid.</p>
-            <div style="margin-bottom:10px;">
-                <label>Brush: </label>
-                <select id="brush-select">
-                    <option value="iron">Iron Drill (Atk)</option>
-                    <option value="platinum">Platinum Shield (Def)</option>
-                    <option value="gold">Gold Engine (Spd)</option>
-                    <option value="erase">Eraser</option>
-                </select>
+        <div id="tab-build" style="display:none; padding:15px;">
+            <h3>Construct Hybrid Floor</h3>
+            <button onclick="construct('iron', 'lead')">Build Iron-Lead Alloy (2-Color)</button>
+            <button onclick="construct('zenith')">Build ZENITH CORE (3+ Color)</button>
+            <hr>
+            <h3>Vertical Transport</h3>
+            <button onclick="upgradeElevator('normal')">Install Express Elevator</button>
+        </div>
+
+        <div id="tab-map" style="display:none; padding:15px;">
+            <h3>City-Tower Synergy</h3>
+            <p>Adjacent Park: R+20%</p>
+            <p>Adjacent Industrial Zone: I+30%</p>
+            <div id="sim-map" style="width:100%; height:200px; background:#000; border:1px dashed #555;">
+                [Map Grid Simulation Rendering...]
             </div>
-            <div id="unit-grid"></div>
-            <br>
-            <button onclick="startAutoBattle()">Launch Auto-Battle Simulation</button>
         </div>
     </div>
 </div>
-<div id="log-area">Game initialized. Welcome to the Tower.</div>
 
 <script>
-/* --- GAME STATE & CONSTANTS --- */
-const GEMS = ['ruby', 'amethyst', 'emerald', 'topaz', 'sapphire', 'diamond'];
-const METALS = {
-    ruby: 'iron', amethyst: 'lead', emerald: 'copper', 
-    topaz: 'gold', sapphire: 'silver', diamond: 'platinum'
-};
-
-let gameState = {
-    resources: { ruby:0, amethyst:0, emerald:0, topaz:0, sapphire:0, diamond:0 },
-    tower: [], // Array of floor objects
-    towerWidth: 100, // px
-    rci: { r: 10, c: 10, i: 10 },
-    unitLayout: Array(100).fill(null), // 10x10 grid
-    level: 1
-};
-
-// Costs scaling
-const baseCost = 100;
-
-/* --- INITIALIZATION --- */
-function init() {
-    renderPuzzle();
-    renderTower();
-    renderUnitGrid();
-    updateUI();
-    log("System online. No disasters detected.");
-}
-
-/* --- PUZZLE SYSTEM (Simplified Match-3) --- */
-function renderPuzzle() {
-    const board = document.getElementById('puzzle-board');
-    board.innerHTML = '';
-    for(let i=0; i<36; i++) {
-        let g = document.createElement('div');
-        g.className = `gem ${GEMS[Math.floor(Math.random() * GEMS.length)]}`;
-        g.onclick = () => handleGemClick(i, g.className);
-        board.appendChild(g);
-    }
-}
-
-function handleGemClick(index, className) {
-    // Simplified logic: Click to mine + Randomize board slightly (Simulate flow)
-    const type = className.split(' ')[1];
-    
-    // Gain resources (Battle Spirits Core mechanic)
-    let gain = 10; 
-    // RCI Synergy
-    if(type === 'ruby') gain += gameState.rci.i * 0.5; // Industrial boosts Iron
-    if(type === 'topaz') gain += gameState.rci.c * 0.5; // Commercial boosts Gold
-    
-    gameState.resources[type] += Math.floor(gain);
-    
-    log(`Mined ${Math.floor(gain)} ${METALS[type]}.`);
-    
-    // Reroll board (visual chaos)
-    renderPuzzle();
-    updateUI();
-}
-
-/* --- TOWER SYSTEM --- */
-function buildFloor(type) {
-    let costType, costVal;
-    
-    if(type === 'iron') { costType = 'ruby'; costVal = Math.floor(baseCost * Math.pow(1.1, gameState.tower.length)); }
-    if(type === 'lead') { costType = 'amethyst'; costVal = Math.floor(baseCost * Math.pow(1.1, gameState.tower.length)); }
-    if(type === 'gold') { costType = 'topaz'; costVal = Math.floor(baseCost * Math.pow(1.1, gameState.tower.length)); }
-
-    if(gameState.resources[costType] >= costVal) {
-        gameState.resources[costType] -= costVal;
-        
-        let newFloor = {
-            id: Date.now(),
-            type: type,
-            level: 1,
-            width: gameState.towerWidth
-        };
-        
-        gameState.tower.push(newFloor);
-        
-        // Update RCI
-        if(type === 'iron') gameState.rci.i += 10;
-        if(type === 'lead') gameState.rci.r += 15;
-        if(type === 'gold') gameState.rci.c += 12;
-
-        renderTower();
-        updateUI();
-        log(`Construction Complete: ${type.toUpperCase()} Floor.`);
-    } else {
-        log("Insufficient resources!");
-    }
-}
-
-function expandWidth() {
-    let cost = Math.floor(500 * Math.pow(1.2, (gameState.towerWidth - 100)/20));
-    if(gameState.resources.topaz >= cost) {
-        gameState.resources.topaz -= cost;
-        gameState.towerWidth += 20;
-        
-        // Update existing floors visually? Or just new ones? 
-        // Let's update all for the "Expansion" feel
-        gameState.tower.forEach(f => f.width = gameState.towerWidth);
-        
-        renderTower();
-        updateUI();
-        log("Plot Expanded! Tower width increased.");
-    } else {
-        log("Need more Gold (Topaz) to expand plot.");
-    }
-}
-
-function renderTower() {
-    const sky = document.getElementById('sky');
-    sky.innerHTML = '';
-    
-    gameState.tower.forEach((floor, idx) => {
-        let d = document.createElement('div');
-        d.className = `floor ${floor.type}`;
-        d.style.width = floor.width + 'px';
-        d.innerHTML = `Lvl ${floor.level} ${floor.type.toUpperCase()}`;
-        d.dataset.info = `Floor ${idx+1}: HP Infinite | Output: High`;
-        
-        // Click to upgrade (Simulate infinite leveling)
-        d.onclick = () => {
-            floor.level++;
-            d.innerHTML = `Lvl ${floor.level} ${floor.type.toUpperCase()}`;
-            log(`Floor ${idx+1} upgraded to Level ${floor.level}`);
-        };
-        
-        sky.appendChild(d);
-    });
-    
-    document.getElementById('tower-width-disp').innerText = gameState.towerWidth;
-}
-
-/* --- UNIT EDITOR & BATTLE --- */
-function renderUnitGrid() {
-    const grid = document.getElementById('unit-grid');
-    grid.innerHTML = '';
-    gameState.unitLayout.forEach((cell, i) => {
-        let d = document.createElement('div');
-        d.className = `unit-cell ${cell || ''}`;
-        d.onclick = () => paintUnit(i);
-        grid.appendChild(d);
-    });
-}
-
-function paintUnit(index) {
-    const brush = document.getElementById('brush-select').value;
-    if(brush === 'erase') {
-        gameState.unitLayout[index] = null;
-    } else {
-        // Simple cost check
-        let costMap = {'iron':'ruby', 'platinum':'diamond', 'gold':'topaz'};
-        let resKey = costMap[brush];
-        if(gameState.resources[resKey] >= 10) {
-            gameState.resources[resKey] -= 10;
-            gameState.unitLayout[index] = brush;
-        } else {
-            log("Not enough metal for this module!");
-            return;
-        }
-    }
-    renderUnitGrid();
-    updateUI();
-}
-
-function startAutoBattle() {
-    log("--- BATTLE STARTED ---");
-    log("Deploying Unit from Tower Hangar...");
-    
-    let ironCount = gameState.unitLayout.filter(c => c === 'iron').length;
-    let platCount = gameState.unitLayout.filter(c => c === 'platinum').length;
-    
-    let atk = ironCount * 100 * (gameState.rci.i / 10);
-    let def = platCount * 150 * (gameState.rci.r / 10);
-    
-    log(`Unit Stats - ATK: ${Math.floor(atk)} | DEF: ${Math.floor(def)}`);
-    
-    // Simulation
-    setTimeout(() => {
-        let enemyPwr = Math.floor(Math.random() * 500) + (gameState.tower.length * 50);
-        log(`Encountered Enemy Fortress (Power: ${enemyPwr})...`);
-        
-        if(atk > enemyPwr) {
-            log("VICTORY! Enemy fortress dismantled.");
-            let loot = enemyPwr * 2;
-            gameState.resources.sapphire += loot; // Silver/Tech loot
-            log(`Salvaged ${loot} Silver (Sapphire).`);
-        } else {
-            log("DEFEAT. Unit destroyed. Auto-repairing...");
-        }
-        updateUI();
-    }, 1000);
-}
-
-/* --- UI & UTILS --- */
-function switchTab(tabName) {
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('panel-'+tabName).classList.add('active');
-    // Find the tab button and activate it (simplified)
-}
-
-function updateUI() {
-    // Update Resources
-    for(let k in gameState.resources) {
-        let el = document.getElementById(`res-${k}`);
-        if(el) el.innerText = formatNumber(gameState.resources[k]);
-    }
-    
-    // Update RCI
-    document.getElementById('val-r').innerText = gameState.rci.r;
-    document.getElementById('val-c').innerText = gameState.rci.c;
-    document.getElementById('val-i').innerText = gameState.rci.i;
-    
-    // Update Build Costs
-    let scale = Math.pow(1.1, gameState.tower.length);
-    document.getElementById('cost-iron').innerText = formatNumber(Math.floor(baseCost * scale));
-    document.getElementById('cost-lead').innerText = formatNumber(Math.floor(baseCost * scale));
-    document.getElementById('cost-gold').innerText = formatNumber(Math.floor(baseCost * scale));
-    
-    // Width Cost
-    let wCost = Math.floor(500 * Math.pow(1.2, (gameState.towerWidth - 100)/20));
-    document.getElementById('width-cost').innerText = formatNumber(wCost);
-}
-
-function formatNumber(num) {
-    if(num >= 1e6) return (num/1e6).toFixed(2) + 'M';
-    if(num >= 1e3) return (num/1e3).toFixed(1) + 'k';
-    return num;
-}
-
-function log(msg) {
-    let l = document.getElementById('log-area');
-    l.innerHTML = `> ${msg}<br>` + l.innerHTML;
-}
-
-/* --- SAVE / LOAD SYSTEM --- */
-document.getElementById('save-btn').onclick = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(gameState));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "tower_save.json");
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
-    log("Game Saved to Downloads.");
-};
-
-document.getElementById('load-btn').onclick = () => {
-    document.getElementById('load-input').click();
-};
-
-document.getElementById('load-input').onchange = (e) => {
-    const file = e.target.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-        try {
-            gameState = JSON.parse(event.target.result);
-            // Re-render everything
-            renderTower();
-            renderUnitGrid();
-            updateUI();
-            log("Save file loaded successfully.");
-        } catch(err) {
-            log("Error loading save file.");
-        }
+    let state = {
+        res: { iron: 100, lead: 100, copper: 100, gold: 100, silver: 100, platinum: 100 },
+        floors: [],
+        elePos: 0,
+        hasExpress: false,
+        rci: { r:10, c:10, i:10 }
     };
-    reader.readAsText(file);
-};
 
-// Start
-init();
+    const COLORS = {
+        iron: '#ff3e3e', lead: '#bf5af2', copper: '#32d74b',
+        gold: '#ffd60a', silver: '#0a84ff', platinum: '#f2f2f7'
+    };
 
+    function init() {
+        renderRes();
+        renderPuzzle();
+        setInterval(moveElevator, 2000);
+    }
+
+    function renderRes() {
+        const container = document.getElementById('res-display');
+        container.innerHTML = '';
+        for(let key in state.res) {
+            container.innerHTML += `<div class="res-val" style="color:${COLORS[key]}">${key.toUpperCase()}: ${Math.floor(state.res[key])}</div>`;
+        }
+    }
+
+    function renderPuzzle() {
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        for(let i=0; i<36; i++) {
+            let keys = Object.keys(COLORS);
+            let color = keys[Math.floor(Math.random()*6)];
+            let div = document.createElement('div');
+            div.className = 'gem';
+            div.style.backgroundColor = COLORS[color];
+            div.onclick = () => {
+                state.res[color] += 10 * (state.rci.i/10);
+                renderRes();
+                renderPuzzle();
+            };
+            grid.appendChild(div);
+        }
+    }
+
+    function construct(c1, c2) {
+        let type = c2 ? `c2-${c1}-${c2}` : `c3-zenith`;
+        let floor = { type: type, level: 1 };
+        state.floors.push(floor);
+        renderTower();
+        state.rci.i += 5; updateRCI();
+    }
+
+    function renderTower() {
+        const cont = document.getElementById('floors-container');
+        cont.innerHTML = '';
+        state.floors.forEach(f => {
+            let div = document.createElement('div');
+            div.className = `floor ${f.type}`;
+            div.innerText = f.type.toUpperCase();
+            cont.appendChild(div);
+        });
+    }
+
+    function moveElevator() {
+        if(state.floors.length === 0) return;
+        let car = document.getElementById('ele-car');
+        let target = Math.floor(Math.random() * state.floors.length);
+        car.style.bottom = (target * 52) + 'px';
+    }
+
+    function showTab(name) {
+        document.querySelectorAll('.panel, [id^="tab-"]').forEach(el => el.style.display = 'none');
+        document.getElementById('tab-'+name).style.display = 'block';
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    }
+
+    function updateRCI() {
+        document.getElementById('r-val').innerText = state.rci.r;
+        document.getElementById('c-val').innerText = state.rci.c;
+        document.getElementById('i-val').innerText = state.rci.i;
+    }
+
+    function useMagic(type) {
+        alert("Magic Triggered: " + type.toUpperCase());
+        // Add specific magic logic here
+    }
+
+    function saveGame() {
+        const blob = new Blob([JSON.stringify(state)], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'tower_save.json'; a.click();
+    }
+
+    init();
 </script>
 </body>
 </html>
