@@ -3,209 +3,243 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Infinite Tower: Zenith Alchemy</title>
+<title>Infinite Tower: Omni-Transit Alchemy</title>
 <style>
     :root {
         --bg: #0d0d0f; --panel: #1c1c21; --text: #e0e0e0;
-        --ruby: #ff3e3e; --amethyst: #bf5af2; --emerald: #32d74b;
-        --topaz: #ffd60a; --sapphire: #0a84ff; --diamond: #f2f2f7;
+        --iron: #e74c3c; --lead: #9b59b6; --copper: #2ecc71;
+        --gold: #f1c40f; --silver: #3498db; --platinum: #ecf0f1;
     }
-    body { font-family: 'Courier New', monospace; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
     
-    /* Header & RCI Map Synergy */
-    #header { background: #000; padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; }
+    /* Header & RCI */
+    #header { background: #000; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; }
     .rci-bar { display: flex; gap: 10px; }
-    .rci-node { padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 14px; }
-    .r-node { background: #1a5c2e; } .c-node { background: #1a3c5c; } .i-node { background: #5c3c1a; }
+    .rci-node { padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 13px; }
+    .r-node { background: #27ae60; } .c-node { background: #2980b9; } .i-node { background: #f39c12; color: #000; }
 
     /* Layout */
     #main { display: flex; flex: 1; overflow: hidden; }
     
-    /* Tower & Elevator Area */
-    #tower-area { flex: 1.5; position: relative; display: flex; background: #111; border-right: 2px solid #333; overflow-y: auto; flex-direction: column-reverse; padding: 50px; }
-    .floor { 
-        height: 50px; margin: 2px 0; border: 1px solid #444; position: relative; 
-        display: flex; align-items: center; justify-content: center; font-weight: bold; transition: 0.3s;
-    }
-    .elevator-shaft { position: absolute; left: 10px; top: 0; bottom: 0; width: 30px; background: #222; border: 1px solid #444; }
-    .elevator-car { position: absolute; left: 2px; width: 24px; height: 40px; background: #00ff00; box-shadow: 0 0 10px #00ff00; transition: top 0.5s ease-in-out; }
-    .express-car { background: #00ffff; box-shadow: 0 0 15px #00ffff; height: 30px; }
+    /* Tower & Multi-Shaft Area */
+    #tower-section { flex: 1.5; position: relative; background: #111; display: flex; overflow: hidden; border-right: 2px solid #333; }
+    #shaft-container { width: 140px; height: 100%; background: rgba(0,0,0,0.3); display: flex; gap: 2px; padding: 0 5px; border-right: 1px solid #333; z-index: 2; }
+    .shaft { width: 16px; height: 100%; position: relative; border-right: 1px solid #222; }
+    .ele-car { position: absolute; width: 12px; height: 30px; left: 2px; border-radius: 2px; transition: bottom 0.5s ease-in-out; box-shadow: 0 0 10px currentColor; z-index: 3; }
 
-    /* Dashboard */
-    #dashboard { flex: 1.2; display: flex; flex-direction: column; background: var(--panel); }
-    .tabs { display: flex; background: #000; }
-    .tab { flex: 1; padding: 15px; cursor: pointer; text-align: center; border-bottom: 2px solid transparent; }
-    .tab.active { border-bottom: 2px solid var(--topaz); background: #222; }
-
-    /* Puzzle & Magic Cards */
-    #puzzle-container { padding: 20px; display: flex; flex-direction: column; align-items: center; }
-    #grid { display: grid; grid-template-columns: repeat(6, 50px); gap: 5px; }
-    .gem { width: 50px; height: 50px; border-radius: 8px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
-    .magic-area { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-    .magic-btn { padding: 8px; font-size: 11px; background: #333; color: #fff; cursor: pointer; border: 1px solid #666; }
-
-    /* Hybrid Color Classes */
-    .c2-iron-lead { background: linear-gradient(45deg, var(--ruby), var(--amethyst)); }
-    .c3-zenith { background: conic-gradient(var(--ruby), var(--amethyst), var(--emerald), var(--topaz), var(--sapphire), var(--diamond), var(--ruby)); animation: rotate 5s linear infinite; }
+    #sky { flex: 1; overflow-y: auto; display: flex; flex-direction: column-reverse; padding: 20px; padding-left: 10px; }
+    .floor { height: 40px; border: 1px solid #333; margin: 1px 0; background: #222; font-size: 11px; display: flex; align-items: center; justify-content: center; transition: 0.3s; flex-shrink: 0; }
+    
+    /* Alchemy Colors */
+    .c2-alloy { background: linear-gradient(45deg, var(--iron), var(--lead)); }
+    .c3-zenith { background: conic-gradient(var(--iron), var(--lead), var(--copper), var(--gold), var(--silver), var(--platinum), var(--iron)); animation: rotate 5s linear infinite; }
     @keyframes rotate { from { filter: hue-rotate(0deg); } to { filter: hue-rotate(360deg); } }
 
-    .res-val { font-size: 12px; margin-bottom: 5px; }
+    /* Dashboard */
+    #dashboard { flex: 1.2; background: var(--panel); display: flex; flex-direction: column; }
+    .tabs { display: flex; background: #000; }
+    .tab { flex: 1; padding: 12px; cursor: pointer; text-align: center; font-size: 11px; border-bottom: 2px solid transparent; }
+    .tab.active { border-bottom: 2px solid var(--gold); background: #222; }
+    .panel { display: none; padding: 15px; overflow-y: auto; flex: 1; }
+    .panel.active { display: block; }
+
+    .card { background: #2a2a32; padding: 12px; margin-bottom: 10px; border-radius: 4px; border-left: 4px solid #444; }
+    button { width: 100%; padding: 8px; cursor: pointer; background: #444; color: #fff; border: none; border-radius: 3px; font-weight: bold; margin-top: 5px; }
+    button:hover { background: #555; }
+    
+    #grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+    .gem { aspect-ratio: 1; border-radius: 4px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); transition: 0.1s; }
+    .gem:active { transform: scale(0.9); }
 </style>
 </head>
 <body>
 
 <div id="header">
-    <div id="title">ZENITH TOWER OS</div>
+    <div style="font-weight:bold; letter-spacing:1px;">ZENITH TOWER OS</div>
     <div class="rci-bar">
-        <div class="rci-node r-node">Res: <span id="r-val">10</span></div>
-        <div class="rci-node c-node">Com: <span id="c-val">10</span></div>
-        <div class="rci-node i-node">Ind: <span id="i-val">10</span></div>
+        <div class="rci-node r-node">R: <span id="val-r">0</span></div>
+        <div class="rci-node c-node">C: <span id="val-c">0</span></div>
+        <div class="rci-node i-node">I: <span id="val-i">0</span></div>
     </div>
-    <div>
-        <button onclick="saveGame()">SAVE JSON</button>
-    </div>
+    <button onclick="saveGame()" style="width:auto; font-size:10px;">SAVE JSON</button>
 </div>
 
 <div id="main">
-    <div id="tower-area">
-        <div class="elevator-shaft">
-            <div id="ele-car" class="elevator-car"></div>
-            <div id="exp-car" class="elevator-car express-car" style="display:none;"></div>
-        </div>
-        <div id="floors-container"></div>
+    <div id="tower-section">
+        <div id="shaft-container"></div>
+        <div id="sky"></div>
     </div>
 
     <div id="dashboard">
         <div class="tabs">
-            <div class="tab active" onclick="showTab('puzzle')">Alchemy</div>
-            <div class="tab" onclick="showTab('build')">Architecture</div>
-            <div class="tab" onclick="showTab('map')">SimMap</div>
+            <div class="tab active" onclick="showTab('transit')">TRANSIT</div>
+            <div class="tab" onclick="showTab('build')">BUILD</div>
+            <div class="tab" onclick="showTab('alchemy')">ALCHEMY</div>
         </div>
 
-        <div id="tab-puzzle" style="display:block; padding:15px;">
-            <div id="res-display" style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-bottom:15px;"></div>
+        <div id="tab-transit" class="panel active">
+            <h3>Transit Network</h3>
+            <div id="elevator-list"></div>
+        </div>
+
+        <div id="tab-build" class="panel">
+            <h3>Architecture</h3>
+            <div class="card">
+                <strong>Standard Floor</strong>
+                <button onclick="buildFloor('std')">Build (10 Iron)</button>
+            </div>
+            <div class="card" style="border-left-color: var(--platinum)">
+                <strong>Zenith Core (3-Color)</strong>
+                <button onclick="buildFloor('zenith')">Build (100 All)</button>
+            </div>
+        </div>
+
+        <div id="tab-alchemy" class="panel">
+            <h3>Resource Extraction</h3>
+            <div id="res-display" style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:15px; font-size:12px;"></div>
             <div id="grid"></div>
-            <div class="magic-area">
-                <button class="magic-btn" onclick="useMagic('flame')">Flame Craft (Red)</button>
-                <button class="magic-btn" onclick="useMagic('shield')">Dream Barrier (White)</button>
-                <button class="magic-btn" onclick="useMagic('haste')">Express Mode (Blue)</button>
-            </div>
-        </div>
-
-        <div id="tab-build" style="display:none; padding:15px;">
-            <h3>Construct Hybrid Floor</h3>
-            <button onclick="construct('iron', 'lead')">Build Iron-Lead Alloy (2-Color)</button>
-            <button onclick="construct('zenith')">Build ZENITH CORE (3+ Color)</button>
-            <hr>
-            <h3>Vertical Transport</h3>
-            <button onclick="upgradeElevator('normal')">Install Express Elevator</button>
-        </div>
-
-        <div id="tab-map" style="display:none; padding:15px;">
-            <h3>City-Tower Synergy</h3>
-            <p>Adjacent Park: R+20%</p>
-            <p>Adjacent Industrial Zone: I+30%</p>
-            <div id="sim-map" style="width:100%; height:200px; background:#000; border:1px dashed #555;">
-                [Map Grid Simulation Rendering...]
-            </div>
         </div>
     </div>
 </div>
 
 <script>
+    // エレベーター定義：君の指定した停車間隔と速度序列
+    const TIERS = {
+        LOCAL:         { name: "Local", interval: 1, speed: 2.0, color: '#00ff00', cost: { iron: 10 } },
+        SEMI_EXP:      { name: "Semi Express", interval: 2, speed: 1.5, color: '#00ffff', cost: { iron: 30, lead: 30 } },
+        EXPRESS:       { name: "Express", interval: 5, speed: 1.2, color: '#ffff00', cost: { iron: 100, copper: 100 } },
+        RAPID_EXP:     { name: "Rapid Express", interval: 10, speed: 1.0, color: '#ffaa00', cost: { gold: 200, silver: 200 } },
+        LIMITED_EXP:   { name: "Limited Express", interval: 15, speed: 0.8, color: '#ff3e3e', cost: { gold: 500, platinum: 500 } },
+        RAPID_LIMITED: { name: "Rapid Limited Express", interval: 30, speed: 0.5, color: '#ff00ff', cost: { silver: 1000, platinum: 1000, copper: 1000 } },
+        SUPER_EXP:     { name: "Super Express", interval: 100, speed: 0.2, color: '#ffffff', cost: { iron: 5000, platinum: 5000, gold: 5000 } }
+    };
+
+    const COLORS = { iron: '#ff3e3e', lead: '#bf5af2', copper: '#32d74b', gold: '#ffd60a', silver: '#0a84ff', platinum: '#f2f2f7' };
+
     let state = {
         res: { iron: 100, lead: 100, copper: 100, gold: 100, silver: 100, platinum: 100 },
         floors: [],
-        elePos: 0,
-        hasExpress: false,
-        rci: { r:10, c:10, i:10 }
-    };
-
-    const COLORS = {
-        iron: '#ff3e3e', lead: '#bf5af2', copper: '#32d74b',
-        gold: '#ffd60a', silver: '#0a84ff', platinum: '#f2f2f7'
+        unlockedTiers: ['LOCAL'],
+        rci: { r: 10, c: 10, i: 10 }
     };
 
     function init() {
+        for(let i=0; i<10; i++) state.floors.push({type:'std'});
+        renderAll();
+        setInterval(simulateTraffic, 2000);
+    }
+
+    function renderAll() {
         renderRes();
-        renderPuzzle();
-        setInterval(moveElevator, 2000);
+        renderGrid();
+        renderTower();
+        renderElevatorUI();
+        updateRCI();
     }
 
     function renderRes() {
-        const container = document.getElementById('res-display');
-        container.innerHTML = '';
-        for(let key in state.res) {
-            container.innerHTML += `<div class="res-val" style="color:${COLORS[key]}">${key.toUpperCase()}: ${Math.floor(state.res[key])}</div>`;
+        const d = document.getElementById('res-display');
+        d.innerHTML = '';
+        for(let k in state.res) {
+            d.innerHTML += `<div style="color:${COLORS[k]}">${k.toUpperCase()}: ${Math.floor(state.res[k])}</div>`;
         }
     }
 
-    function renderPuzzle() {
-        const grid = document.getElementById('grid');
-        grid.innerHTML = '';
-        for(let i=0; i<36; i++) {
-            let keys = Object.keys(COLORS);
-            let color = keys[Math.floor(Math.random()*6)];
-            let div = document.createElement('div');
-            div.className = 'gem';
-            div.style.backgroundColor = COLORS[color];
-            div.onclick = () => {
-                state.res[color] += 10 * (state.rci.i/10);
-                renderRes();
-                renderPuzzle();
-            };
-            grid.appendChild(div);
+    function renderGrid() {
+        const g = document.getElementById('grid');
+        g.innerHTML = '';
+        const keys = Object.keys(COLORS);
+        for(let i=0; i<30; i++) {
+            let type = keys[Math.floor(Math.random()*6)];
+            let gem = document.createElement('div');
+            gem.className = 'gem';
+            gem.style.backgroundColor = COLORS[type];
+            gem.onclick = () => { state.res[type] += 10 * (state.rci.i/10); renderRes(); renderGrid(); };
+            g.appendChild(gem);
         }
-    }
-
-    function construct(c1, c2) {
-        let type = c2 ? `c2-${c1}-${c2}` : `c3-zenith`;
-        let floor = { type: type, level: 1 };
-        state.floors.push(floor);
-        renderTower();
-        state.rci.i += 5; updateRCI();
     }
 
     function renderTower() {
-        const cont = document.getElementById('floors-container');
-        cont.innerHTML = '';
-        state.floors.forEach(f => {
+        const sky = document.getElementById('sky');
+        sky.innerHTML = '';
+        state.floors.forEach((f, i) => {
             let div = document.createElement('div');
-            div.className = `floor ${f.type}`;
-            div.innerText = f.type.toUpperCase();
-            cont.appendChild(div);
+            div.className = `floor ${f.type === 'zenith' ? 'c3-zenith' : ''}`;
+            div.innerText = `F${i} - ${f.type.toUpperCase()}`;
+            sky.appendChild(div);
+        });
+
+        const shafts = document.getElementById('shaft-container');
+        shafts.innerHTML = '';
+        state.unlockedTiers.forEach(t => {
+            let s = document.createElement('div');
+            s.className = 'shaft';
+            s.innerHTML = `<div id="car-${t}" class="ele-car" style="color:${TIERS[t].color}; background:currentColor;"></div>`;
+            shafts.appendChild(s);
         });
     }
 
-    function moveElevator() {
-        if(state.floors.length === 0) return;
-        let car = document.getElementById('ele-car');
-        let target = Math.floor(Math.random() * state.floors.length);
-        car.style.bottom = (target * 52) + 'px';
+    function renderElevatorUI() {
+        const list = document.getElementById('elevator-list');
+        list.innerHTML = '';
+        for(let key in TIERS) {
+            let t = TIERS[key];
+            let unlocked = state.unlockedTiers.includes(key);
+            list.innerHTML += `
+                <div class="card" style="border-left-color:${t.color}">
+                    <strong>${t.name}</strong><br>
+                    <small>Interval: ${t.interval}F | Spd: ${t.speed}s</small>
+                    <button onclick="unlockEle('${key}')" ${unlocked ? 'disabled' : ''}>
+                        ${unlocked ? 'OPERATIONAL' : 'Unlock'}
+                    </button>
+                </div>`;
+        }
     }
 
-    function showTab(name) {
-        document.querySelectorAll('.panel, [id^="tab-"]').forEach(el => el.style.display = 'none');
-        document.getElementById('tab-'+name).style.display = 'block';
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    function unlockEle(key) {
+        let cost = TIERS[key].cost;
+        for(let k in cost) if((state.res[k]||0) < cost[k]) return alert("Missing resources!");
+        for(let k in cost) state.res[k] -= cost[k];
+        state.unlockedTiers.push(key);
+        renderAll();
+    }
+
+    function buildFloor(type) {
+        state.floors.push({type: type});
+        if(type === 'zenith') state.rci.r += 50; else state.rci.i += 2;
+        renderTower(); updateRCI();
+    }
+
+    function simulateTraffic() {
+        state.unlockedTiers.forEach(t => {
+            const car = document.getElementById(`car-${t}`);
+            if(!car) return;
+            let possible = [];
+            for(let i=0; i<state.floors.length; i++) if(i % TIERS[t].interval === 0) possible.push(i);
+            let target = possible[Math.floor(Math.random()*possible.length)];
+            car.style.transition = `bottom ${TIERS[t].speed}s ease-in-out`;
+            car.style.bottom = (target * 42) + 'px';
+        });
     }
 
     function updateRCI() {
-        document.getElementById('r-val').innerText = state.rci.r;
-        document.getElementById('c-val').innerText = state.rci.c;
-        document.getElementById('i-val').innerText = state.rci.i;
+        document.getElementById('val-r').innerText = state.rci.r;
+        document.getElementById('val-c').innerText = state.rci.c;
+        document.getElementById('val-i').innerText = state.rci.i;
     }
 
-    function useMagic(type) {
-        alert("Magic Triggered: " + type.toUpperCase());
-        // Add specific magic logic here
+    function showTab(id) {
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-'+id).classList.add('active');
+        event.currentTarget.classList.add('active');
     }
 
     function saveGame() {
-        const blob = new Blob([JSON.stringify(state)], {type: 'application/json'});
-        const url = URL.createObjectURL(blob);
+        const data = encodeURIComponent(JSON.stringify(state));
         const a = document.createElement('a');
-        a.href = url; a.download = 'tower_save.json'; a.click();
+        a.href = "data:text/json;charset=utf-8," + data;
+        a.download = "tower_zenith_save.json"; a.click();
     }
 
     init();
